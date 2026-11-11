@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Game 3D</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #111; }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Car Game 3D | Управление: Стрелки Влево / Вправо</div>
+    
+    <!-- Подключаем библиотеку Three.js для 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Создаем сцену, камеру и рендерер
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb); // Небо
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Свет
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        // Дорога
+        const roadGeo = new THREE.PlaneGeometry(6, 100);
+        const roadMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+        const road = new THREE.Mesh(roadGeo, roadMat);
+        road.rotation.x = -Math.PI / 2;
+        scene.add(road);
+
+        // Машинка
+        const car = new THREE.Group();
+
+        const bodyGeo = new THREE.BoxGeometry(1.2, 0.5, 2.5);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = 0.4;
+        car.add(body);
+
+        scene.add(car);
+        car.position.z = 2;
+
+        // Управление с клавиатуры
+        let moveLeft = false;
+        let moveRight = false;
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') moveLeft = true;
+            if (e.key === 'ArrowRight') moveRight = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') moveLeft = false;
+            if (e.key === 'ArrowRight') moveRight = false;
+        });
+
+        // Анимация игры
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Движение машинки в стороны
+            if (moveLeft && car.position.x > -2.5) car.position.x -= 0.1;
+            if (moveRight && car.position.x < 2.5) car.position.x += 0.1;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Адаптация под размер экрана
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
